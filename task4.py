@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import numpy as np
 import polytope as pc
 import scipy
@@ -8,7 +9,7 @@ from simulation import EmbeddedSimEnvironment
 from set_operations import SetOperations
 
 SET_TYPE = "LQR"  # Terminal invariant set type: select 'zero' or 'LQR'
-CASE_SELECTION = "simulate"  # Select either "attitude", "translation", "simulate"
+CASE_SELECTION = "translation"  # Select either "attitude", "translation", "simulate"
 
 # Create pendulum and controller objects
 abee = Astrobee()
@@ -50,7 +51,7 @@ set_ops_a = SetOperations(Aa, Ba, Qa, Ra, xlb=-x_lim_a, xub=x_lim_a)
 # TODO: For Q1, change N=10 to the different values of N and inv_set_type to "LQR" or "zero"
 if CASE_SELECTION == "translation":
     # Q1
-    KN_XN, all_sets, _ = set_ops_t.getNstepControllableSet(uub=u_lim_t, ulb=-u_lim_t, N=10, inv_set_type=SET_TYPE)
+    KN_XN, all_sets, _ = set_ops_t.getNstepControllableSet(uub=u_lim_t, ulb=-u_lim_t, N=20, inv_set_type=SET_TYPE)
     set_ops_t.plotNsets(all_sets, plot_type=CASE_SELECTION)
 
     # Q2
@@ -98,29 +99,29 @@ elif CASE_SELECTION == "simulate":
 
     Xf = pc.Polytope(scipy.linalg.block_diag(Xf_t.A, Xf_a.A), np.concatenate((Xf_t.b, Xf_a.b), axis=0))
 
-# Part II - look into the MPC class and answer Q3
-MPC_HORIZON = 10
-# TODO: inspect the MPC class
-ctl = MPC(model=abee,
-          dynamics=abee.linearized_discrete_dynamics,
-          Q=Q, R=R, P=P_LQR, N=MPC_HORIZON,
-          ulb=-u_lim, uub=u_lim,
-          xlb=-x_lim, xub=x_lim,
-          terminal_constraint=Xf)
+# # Part II - look into the MPC class and answer Q3
+# MPC_HORIZON = 10
+# # TODO: inspect the MPC class
+# ctl = MPC(model=abee,
+#           dynamics=abee.linearized_discrete_dynamics,
+#           Q=Q, R=R, P=P_LQR, N=MPC_HORIZON,
+#           ulb=-u_lim, uub=u_lim,
+#           xlb=-x_lim, xub=x_lim,
+#           terminal_constraint=Xf)
 
-# Part III
-# TODO: Answer Q4-Q7
-# Set controller reference
-x_d = np.zeros((12, 1))
-ctl.set_reference(x_d)
+# # Part III
+# # TODO: Answer Q4-Q7
+# # Set controller reference
+# x_d = np.zeros((12, 1))
+# ctl.set_reference(x_d)
 
-# Set initial state
-x0 = np.zeros((12, 1))
-x0[0] = 0.2
-x0[6] = 0.08
-sim_env = EmbeddedSimEnvironment(model=abee,
-                                 dynamics=abee.linearized_discrete_dynamics,
-                                 controller=ctl.mpc_controller,
-                                 time=20)
-t, y, u = sim_env.run(x0)
-sim_env.visualize()
+# # Set initial state
+# x0 = np.zeros((12, 1))
+# x0[0] = 0.2
+# x0[6] = 0.08
+# sim_env = EmbeddedSimEnvironment(model=abee,
+#                                  dynamics=abee.linearized_discrete_dynamics,
+#                                  controller=ctl.mpc_controller,
+#                                  time=20)
+# t, y, u = sim_env.run(x0)
+# sim_env.visualize()
