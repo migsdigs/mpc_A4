@@ -1,0 +1,11 @@
+Q4 - 1*U
+------- SIMULATION STATUS -------
+Energy used:  156.19659284181895
+Position integral error:  3.9404775086085233
+Attitude integral error:  0.9022227996180306
+
+Q4 - 3*U 
+------- SIMULATION STATUS -------
+Energy used:  160.51158149422022
+Position integral error:  3.557055497956232
+Attitude integral error:  0.881739135466543
