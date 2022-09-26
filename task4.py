@@ -9,7 +9,7 @@ from simulation import EmbeddedSimEnvironment
 from set_operations import SetOperations
 
 SET_TYPE = "LQR"  # Terminal invariant set type: select 'zero' or 'LQR'
-CASE_SELECTION = "translation"  # Select either "attitude", "translation", "simulate"
+CASE_SELECTION = "simulate"  # Select either "attitude", "translation", "simulate"
 
 # Create pendulum and controller objects
 abee = Astrobee()
@@ -18,8 +18,21 @@ abee = Astrobee()
 A, B, _, _ = abee.create_discrete_time_dynamics()
 
 # Solve the ARE for our system to extract the terminal weight matrix P
-Q = np.eye(12)
-R = np.eye(6) * 0.01
+# Q = np.eye(12)
+# R = np.eye(6)
+R_coefficients = np.ones(6)
+Q_coefficients = np.ones(12)
+
+Q_coefficients[0:3] = [101, 101, 101]
+Q_coefficients[3:6] = [101, 101, 101]
+Q_coefficients[6:9] = [101, 101, 101]
+Q_coefficients[9:12] = [101, 101, 101]
+R_coefficients[0:3] = [1, 1, 1]
+R_coefficients[3:6] = [1, 1, 1]
+
+Q = np.diag(Q_coefficients)
+R = np.diag(R_coefficients)
+
 P_LQR = np.matrix(scipy.linalg.solve_discrete_are(A, B, Q, R))
 
 # Instantiate controller
@@ -56,14 +69,14 @@ if CASE_SELECTION == "translation":
 
     # Q2
     kns_u, _, _ = set_ops_t.getNstepControllableSet(uub=u_lim_t, ulb=-u_lim_t, N=5, inv_set_type=SET_TYPE)
-    kns_3u, _, _ = set_ops_t.getNstepControllableSet(uub=3 * u_lim_t, ulb=-3 * u_lim_t, N=5, inv_set_type=SET_TYPE)
+    kns_3u, _, _ = set_ops_t.getNstepControllableSet(uub=3 * u_lim_t, ulb=-3 * u_lim_t, N=10, inv_set_type=SET_TYPE)
     sets = {'|u|': kns_u, '3 |u|': kns_3u}
     set_ops_t.plotNsets(sets, plotU=True, plot_type=CASE_SELECTION)
     exit()
 
 elif CASE_SELECTION == "attitude":
     # Q1
-    KN_XN, all_sets, _ = set_ops_a.getNstepControllableSet(uub=u_lim_a, ulb=-u_lim_a, N=10, inv_set_type=SET_TYPE)
+    KN_XN, all_sets, _ = set_ops_a.getNstepControllableSet(uub=u_lim_a, ulb=-u_lim_a, N=5, inv_set_type=SET_TYPE)
     set_ops_a.plotNsets(all_sets, plot_type=CASE_SELECTION)
 
     # Q2
@@ -99,29 +112,29 @@ elif CASE_SELECTION == "simulate":
 
     Xf = pc.Polytope(scipy.linalg.block_diag(Xf_t.A, Xf_a.A), np.concatenate((Xf_t.b, Xf_a.b), axis=0))
 
-# # Part II - look into the MPC class and answer Q3
-# MPC_HORIZON = 10
-# # TODO: inspect the MPC class
-# ctl = MPC(model=abee,
-#           dynamics=abee.linearized_discrete_dynamics,
-#           Q=Q, R=R, P=P_LQR, N=MPC_HORIZON,
-#           ulb=-u_lim, uub=u_lim,
-#           xlb=-x_lim, xub=x_lim,
-#           terminal_constraint=Xf)
+# Part II - look into the MPC class and answer Q3
+MPC_HORIZON = 10
+# TODO: inspect the MPC class
+ctl = MPC(model=abee,
+          dynamics=abee.linearized_discrete_dynamics,
+          Q=Q, R=R, P=P_LQR, N=MPC_HORIZON,
+          ulb=-u_lim, uub=u_lim,
+          xlb=-x_lim, xub=x_lim,
+          terminal_constraint=Xf)
 
-# # Part III
-# # TODO: Answer Q4-Q7
-# # Set controller reference
-# x_d = np.zeros((12, 1))
-# ctl.set_reference(x_d)
+# Part III
+# TODO: Answer Q4-Q7
+# Set controller reference
+x_d = np.zeros((12, 1))
+ctl.set_reference(x_d)
 
-# # Set initial state
-# x0 = np.zeros((12, 1))
-# x0[0] = 0.2
-# x0[6] = 0.08
-# sim_env = EmbeddedSimEnvironment(model=abee,
-#                                  dynamics=abee.linearized_discrete_dynamics,
-#                                  controller=ctl.mpc_controller,
-#                                  time=20)
-# t, y, u = sim_env.run(x0)
-# sim_env.visualize()
+# Set initial state
+x0 = np.zeros((12, 1))
+x0[0] = 0.2
+x0[6] = 0.08
+sim_env = EmbeddedSimEnvironment(model=abee,
+                                 dynamics=abee.linearized_discrete_dynamics,
+                                 controller=ctl.mpc_controller,
+                                 time=20)
+t, y, u = sim_env.run(x0)
+sim_env.visualize()

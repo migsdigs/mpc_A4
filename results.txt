@@ -9,3 +9,38 @@ Q4 - 3*U
 Energy used:  160.51158149422022
 Position integral error:  3.557055497956232
 Attitude integral error:  0.881739135466543
+
+
+Q6 - LQR N = 10
+------- SIMULATION STATUS -------
+Energy used:  156.19659284181895
+Position integral error:  3.9404775086085233
+Attitude integral error:  0.9022227996180306
+
+Q6 - Zero N = 50
+------- SIMULATION STATUS -------
+Energy used:  156.2041589972139
+Position integral error:  3.9408366157207033
+Attitude integral error:  0.9021317936698655
+
+
+Q7
+Qeye Reye
+------- SIMULATION STATUS -------
+Energy used:  58.68803377668705
+Position integral error:  10.074272070292889
+Attitude integral error:  0.9609220668055931
+
+Qeye 10*Reye
+------- SIMULATION STATUS -------
+Energy used:  30.888861946193952
+Position integral error:  16.843541526406934
+Attitude integral error:  1.1650700150374018
+
+Q_vel += 100 Reye
+------- SIMULATION STATUS -------
+Energy used:  27.30946031729638
+Position integral error:  19.076573218866297
+Attitude integral error:  7.033421843594131
+
+Q_pos += 100 Reye

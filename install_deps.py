@@ -19,6 +19,7 @@ if __name__ == "__main__":
 
     try:
         import matplotlib
+        print(matplotlib.ve)
     except Exception:
         print("ERROR: matplotlib package not installed. Please install it manually for your environment")
         exit()
